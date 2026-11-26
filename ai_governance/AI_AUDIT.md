@@ -53,7 +53,21 @@ how we found it, the fix, and where the fixed version is.
   while the standard deviation between folds is about 0.006. Taking the maximum was choosing on noise, and
   choosing the weakest regularisation, although `euribor3m`, `emp.var.rate` and `nr.employed` are collinear
   (VIF > 30).
-* **Fix (v2):** **one standard error rule**: among the settings within one standard error (std / sqrt(5)) of the
+* **Fix (v2):** **one standard error rule**: among the settings within one standard error (sample std / sqrt(5)) of the
   best score, keep the most regularised one. Result: `C = 0.1`, `class_weight=None` (notebook 02, section 3).
 * **Result:** CV PR-AUC 0.4484 instead of 0.4497 (a difference smaller than the fold std), a simpler and more
   stable model, chosen by a rule decided before looking at the test set.
+
+### E3. Standard error computed with the population std
+
+* **AI output (v2 of the one standard error rule, notebook 02):**
+  `se = res.loc[best_i, "std_test_pr_auc"] / np.sqrt(cv.get_n_splits())`.
+* **Problem:** scikit-learn computes `std_test_*` with `np.std`, i.e. `ddof=0`. A standard error of the mean needs
+  the sample standard deviation (`ddof=1`). With 5 folds the SE was too small by a factor sqrt(4/5) (-11 %),
+  so the rule was slightly too strict.
+* **How we caught it:** constrained audit prompt P3; checked by recomputing the 5 fold scores of `C = 0.1`:
+  `std_test_score` = 0.00558 = `np.std(ddof=0)`, while `np.std(ddof=1)` = 0.00624.
+* **Fix (v3):** `std_sample = std * sqrt(k / (k - 1))`, then `se = std_sample / sqrt(k)`.
+* **Result:** the threshold goes from 0.4471 to 0.4468; the chosen model does not change (`C = 0.1`).
+  Remaining limit: the 5 fold scores are not independent (the training folds overlap), so the SE is still an
+  approximation; the rule is a heuristic, not a test.
