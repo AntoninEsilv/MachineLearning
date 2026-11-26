@@ -12,6 +12,7 @@ dataset/raw/                 original data (UCI, CC BY 4.0)
 dataset/processed/           bank_clean.csv, made by notebook 01
 dataset/train.csv, test.csv  stratified 80/20 split, made by code/step2_split.py
 code/                        step2_split.py, step2_preprocessing.py (split and preprocessor)
+                             step3_feature_selection.py (leakage-safe feature-selection comparison)
 notebooks/
   01_data_exploration.ipynb  quality, statistical tests, cleaning           (step 2.1)
   02_baseline_automl.ipynb   split plan, dummy, logistic regression baseline,
@@ -32,6 +33,7 @@ rendus/                      deliverables already sent (step 1)
 ```
 pip install -r requirements.txt
 python code/step2_split.py      # only if dataset/train.csv and test.csv are missing
+python code/step3_feature_selection.py
 cd notebooks
 jupyter nbconvert --to notebook --execute --inplace 01_data_exploration.ipynb
 jupyter nbconvert --to notebook --execute --inplace 02_baseline_automl.ipynb
