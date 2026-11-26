@@ -12,13 +12,13 @@ dataset/raw/                 original data (UCI, CC BY 4.0)
 dataset/processed/           bank_clean.csv, made by notebook 01
 dataset/train.csv, test.csv  stratified 80/20 split, made by code/step2_split.py
 code/                        step2_split.py, step2_preprocessing.py (split and preprocessor)
-                             step3_feature_selection.py (leakage-safe feature-selection comparison)
 notebooks/
   01_data_exploration.ipynb  quality, statistical tests, cleaning           (step 2.1)
   02_baseline_automl.ipynb   split plan, dummy, logistic regression baseline,
                              benchmark, AutoML v0.1 with standard models     (step 2.2-2.5)
-  03_advanced_models.ipynb   random forest, boosting, ensemble, model outside the course (step 3, to do)
+  03_advanced_models.ipynb   random forest, boosting, ensemble, model outside the course (step 3)
   04_model_comparison.ipynb  test set, confidence intervals, comparison with the baseline, temporal test (step 3)
+  05_feature_selection.ipynb compare feature-selection methods with CV and a final test-set check
 src/
   common.py                  loads the split, CV folds, temporal split (uses code/step2_preprocessing.py)
   evaluation.py              metrics, recall in the top 20 %, bootstrap
@@ -33,10 +33,10 @@ rendus/                      deliverables already sent (step 1)
 ```
 pip install -r requirements.txt
 python code/step2_split.py      # only if dataset/train.csv and test.csv are missing
-python code/step3_feature_selection.py
 cd notebooks
 jupyter nbconvert --to notebook --execute --inplace 01_data_exploration.ipynb
 jupyter nbconvert --to notebook --execute --inplace 02_baseline_automl.ipynb
+jupyter nbconvert --to notebook --execute --inplace 05_feature_selection.ipynb
 jupyter nbconvert --to notebook --execute --inplace 04_model_comparison.ipynb
 ```
 All paths are relative, all seeds are 42.
