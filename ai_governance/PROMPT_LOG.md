@@ -88,44 +88,34 @@
      with 11 % of yes is meaningless with 31 %.
 * **Kept:** the ddof fix in notebook 02, one sentence added in notebook 04.
 
-### P4. Re-running the final comparison with the step 3 models
-* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, after part 1 of step 3 (random forest and LightGBM,
-  notebook 03) and the feature selection (notebook 05) were pushed.
-* **Prompt (exact, French):** "lis prepa_oral_ml.md et update https://github.com/AntoninEsilv/MachineLearning avec
-  ce que je peux faire maitenant que la partie 3 est faite, il faut qu'on ait fini ce qu'il me restait à faire dans
-  le step 3"
-  (`prepa_oral_ml.md` is my own revision file; its "still to do" list says: re-run notebook 04 with the step 3
-  models, update its conclusion and the README table.)
-* **What the AI did:** re-ran notebook 04 unchanged for the protocol (same test rows, threshold on out-of-fold
-  scores, paired bootstrap against the baseline, temporal split), added a check of the OOF threshold against the
-  in-sample threshold and a paired bootstrap random forest vs LightGBM, rewrote the comments with the new numbers,
-  added `lightgbm` to `requirements.txt` (notebook 03 and `src/models.py` import it, the reproduction failed
-  without it).
-* **Checks done on the output:** the scores of the v0.1 models are the same as in the previous run to the third decimal
-  (differences below 0.0001, floating-point differences between two computers; same test set, same seeds); the model to keep (LightGBM) is chosen from the cross-validation of notebook 03, not from the test
-  set, where the random forest is slightly ahead without a significant difference; every number in the comments
-  was compared with the tables of the notebook.
-
-### P5. Step 3 part 2: ensemble and model outside the course
-* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, after P4.
-* **Prompt (exact, French):** "fais ce qu'il reste à faire pour que la step 3 sois entierement fini."
-  Context given just before in the same session: the 8 points of step 3 in `tasks/Project-Guidelines-ML-2026.pdf`
-  (slide 18); points 5-8 (ensemble, algorithm outside the course, scientific reference, comparison with the
-  baseline) were the ones still missing.
-* **Weakness of the prompt:** it names no model, no metric and no leakage rule. The AI took them from the repo
-  (same folds, PR-AUC, preprocessing inside the pipeline, test set only in notebook 04), so we checked these points
-  ourselves (below).
-* **What the AI did:** read the course syllabus (`Lesson1-ML_Course_Introduction.pdf`: neural networks are not in
-  the 8 sessions, so an MLP is outside the course); wrote notebook 06 (limitations of v0.1/v0.2, stacking and soft
-  voting, MLP tuned with a random search); added `stacking`, `soft_voting` and `mlp` to `src/models.py`; re-ran
-  notebook 04 and rewrote its comments; checked that the 4 references exist (NeurIPS proceedings, arXiv, journal
-  pages) before citing them.
+### P4. Step 3: final comparison, ensemble and model outside the course
+* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, one session after part 1 of step 3 (random forest and
+  LightGBM, notebook 03) and the feature selection (notebook 05) were pushed.
+* **Prompts (exact, French):**
+  1. "lis prepa_oral_ml.md et update https://github.com/AntoninEsilv/MachineLearning avec ce que je peux faire
+     maitenant que la partie 3 est faite, il faut qu'on ait fini ce qu'il me restait à faire dans le step 3"
+     (`prepa_oral_ml.md` is my revision file; its "still to do" list: re-run notebook 04 with the step 3 models,
+     update its conclusion and the README table).
+  2. "fais ce qu'il reste à faire pour que la step 3 sois entierement fini." (just before, the AI had listed the
+     8 points of step 3 from `tasks/Project-Guidelines-ML-2026.pdf`, slide 18; points 5-8 were missing).
+* **Weakness of these prompts:** bare prompts again: no model, no metric, no leakage rule. The AI took them from
+  the repo (same folds, PR-AUC, preprocessing inside the pipeline, test set only in notebook 04), so we checked
+  these points ourselves (below).
+* **What the AI did:** re-ran notebook 04 with every step 3 model and rewrote its comments; added the check of the
+  OOF threshold against the in-sample threshold and the paired bootstrap random forest vs LightGBM; added
+  `lightgbm` to `requirements.txt` (the reproduction failed without it); read the course syllabus
+  (`Lesson1-ML_Course_Introduction.pdf`: neural networks are not in the 8 sessions); wrote notebook 06
+  (limitations of v0.1/v0.2, stacking vs soft voting, MLP tuned with a random search) and the `stacking`,
+  `soft_voting` and `mlp` builders of `src/models.py`; checked that the 4 references exist (NeurIPS proceedings,
+  arXiv, journal pages) before citing them.
 * **Checks done on the output:**
+  * the scores of the v0.1 models did not change (differences below 0.0001, floating point between two computers);
   * the stacking uses `cv=cv_folds()`, so its meta-model learns on out-of-fold scores (same idea as the OOF
     threshold); the base models keep their own preprocessor inside their pipeline;
   * `early_stopping` of `MLPClassifier` is disabled: we read the scikit-learn source, it monitors the *accuracy*
     of a validation split, which is almost flat with 11 % of yes; the number of epochs is tuned in CV instead;
-  * the ensemble sent to notebook 04 (stacking) is chosen on CV PR-AUC, not on the test set;
+  * every model kept (LightGBM among the v0.2 models, stacking among the ensembles) is chosen on CV, never on the
+    test set;
   * the MLP hypothesis written before the run ("its smooth function may extrapolate better than trees on the
-    temporal split") turned out wrong (ROC-AUC 0.59): it is reported as such, not removed.
-
+    temporal split") turned out wrong (ROC-AUC 0.59): it is reported as such, not removed;
+  * the whole project was re-run from a clean clone in the order of the README.
