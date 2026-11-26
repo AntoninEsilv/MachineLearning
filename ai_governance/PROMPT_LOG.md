@@ -87,3 +87,22 @@
      updated). Threshold metrics (precision, F1) are not reported on the temporal split, since a threshold chosen
      with 11 % of yes is meaningless with 31 %.
 * **Kept:** the ddof fix in notebook 02, one sentence added in notebook 04.
+
+### P4. Re-running the final comparison with the step 3 models
+* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, after part 1 of step 3 (random forest and LightGBM,
+  notebook 03) and the feature selection (notebook 05) were pushed.
+* **Prompt (exact, French):** "lis prepa_oral_ml.md et update https://github.com/AntoninEsilv/MachineLearning avec
+  ce que je peux faire maitenant que la partie 3 est faite, il faut qu'on ait fini ce qu'il me restait à faire dans
+  le step 3"
+  (`prepa_oral_ml.md` is my own revision file; its "still to do" list says: re-run notebook 04 with the step 3
+  models, update its conclusion and the README table.)
+* **What the AI did:** re-ran notebook 04 unchanged for the protocol (same test rows, threshold on out-of-fold
+  scores, paired bootstrap against the baseline, temporal split), added a check of the OOF threshold against the
+  in-sample threshold and a paired bootstrap random forest vs LightGBM, rewrote the comments with the new numbers,
+  added `lightgbm` to `requirements.txt` (notebook 03 and `src/models.py` import it, the reproduction failed
+  without it).
+* **Checks done on the output:** the scores of the v0.1 models are the same as in the previous run to the third decimal
+  (differences below 0.0001, floating-point differences between two computers; same test set, same seeds); the model to keep (LightGBM) is chosen from the cross-validation of notebook 03, not from the test
+  set, where the random forest is slightly ahead without a significant difference; every number in the comments
+  was compared with the tables of the notebook.
+
