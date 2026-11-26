@@ -41,8 +41,9 @@
   04 (`results/test_rows.csv` + assert), threshold chosen on out-of-fold train scores, test set used once.
 
 ### P2. Leakage audit of the pipeline (constrained prompt)
-* **Tool:** Claude Code, 26/11/2026. Prompt written with the AI from the course guidelines, then reviewed and
-  sent by Enki. Compared to P1, it gives the data schema, the leakage boundaries and asks for proof per point.
+* **Tool:** Claude Code, 26/11/2026. After P1, Enki asked for constrained audit prompts following the course
+  guidelines; the AI drafted them, Enki asked to run them in the same session. Compared to P1, the prompt gives
+  the data schema, the leakage boundaries and asks for a proof per point.
 * **Prompt (exact):**
   > Audit `notebooks/02_baseline_automl.ipynb` and `src/` for data leakage. Schema: 41,176 rows, target `y` (0/1,
   > 11.3 % positives), features = `FEATURES` in `code/step2_preprocessing.py`; `duration` and `row_order` must NOT
