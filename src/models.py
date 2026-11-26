@@ -9,7 +9,9 @@ then add one line to MODELS below. Notebook 04 picks it up automatically.
 """
 import json
 
+from lightgbm import LGBMClassifier
 from sklearn.dummy import DummyClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -63,6 +65,20 @@ def pipe_linsvc():
                      ("model", LinearSVC(random_state=SEED, max_iter=20000))])
 
 
+# step 3 models (tuned in notebook 03)
+def pipe_rf():
+    return Pipeline([("prep", make_preprocessor()),
+                     ("model", RandomForestClassifier(random_state=SEED, n_jobs=-1))])
+
+
+def pipe_lgbm():
+    # n_jobs=1: the cross-validation already runs the folds in parallel (n_jobs=-1). If LightGBM also
+    # uses all the cores, the threads fight each other and it is about 60 times slower
+    # (measured: 102 s instead of 1.7 s for one 5-fold CV).
+    return Pipeline([("prep", make_preprocessor()),
+                     ("model", LGBMClassifier(random_state=SEED, n_jobs=1, verbose=-1))])
+
+
 BUILDERS = {
     "dummy": pipe_dummy,
     "logreg_baseline": pipe_logreg,
@@ -70,7 +86,9 @@ BUILDERS = {
     "knn": pipe_knn,
     "naive_bayes": pipe_nb,
     "linear_svc": pipe_linsvc,
-    # step 3 models go here, e.g. "random_forest": pipe_rf, "xgboost": pipe_xgb, "stacking": pipe_stack
+    "random_forest": pipe_rf,
+    "lightgbm": pipe_lgbm,
+    # other step 3 models go here, e.g. "stacking": pipe_stack
 }
 
 
