@@ -5,14 +5,14 @@ Split du dataset nettoyé en train (80 %) / test (20 %) - Bank Telemarketing (St
 - Graine fixée (SEED = 42) : split reproductible.
 - Le jeu de test est écrit une fois pour toutes et ne sert qu'à l'évaluation finale.
 - Les données sont sauvegardées NON encodées (propres mais lisibles) ; l'encodage est
-  fait dans un Pipeline (voir preprocessing.py) pour éviter toute fuite de données.
+  fait dans un Pipeline (voir step2_preprocessing.py) pour éviter toute fuite de données.
 
-Lancer depuis la racine du projet :  python code/prepare_split.py
+Lancer depuis la racine du projet :  python code/step2_split.py
 """
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from preprocessing import DATASET_DIR, FEATURES, ID_COLS, SEED, TARGET
+from step2_preprocessing import DATASET_DIR, FEATURES, ID_COLS, SEED, TARGET
 
 TEST_SIZE = 0.20
 

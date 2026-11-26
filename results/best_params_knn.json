@@ -1,0 +1,4 @@
+{
+  "model__n_neighbors": 275,
+  "model__weights": "uniform"
+}
