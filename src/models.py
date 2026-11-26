@@ -45,7 +45,7 @@ def pipe_logreg():
 
 
 def pipe_tree():
-    return Pipeline([("prep", make_preprocessor(scale=False)),
+    return Pipeline([("prep", make_preprocessor()),
                      ("model", DecisionTreeClassifier(random_state=SEED))])
 
 

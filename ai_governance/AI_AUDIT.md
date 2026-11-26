@@ -36,24 +36,24 @@ how we found it, the fix, and where the fixed version is.
   not on the model.
 * **How we caught it:** on the temporal split (notebook 04, section 4), the dummy model got a recall of
   **0.052** in the top 20 %. A model that gives the same score to everybody should get exactly 0.20 on average
-  (it is a random choice). The decision tree had 0.129 for the same reason.
+  (it is a random choice). The decision tree was also too low (0.129) for the same reason.
 * **Fix (v2):** for the tied clients at the cut, we count the expected number of yes (as if they were picked at
   random). Checked with small hand-made cases (constant score gives 0.2, a tie of 3 with 1 yes gives 1/3).
   The gain curve now breaks ties at random with a fixed seed.
-* **Result:** dummy 0.052 → 0.200 and decision tree 0.129 → 0.222 on the temporal split; no change for the
-  models without ties (logistic regression 0.402).
+* **Result:** dummy 0.052 → 0.200 on the temporal split, the decision tree is now judged on its scores only;
+  no change for the models without ties (logistic regression, linear SVM).
 
 ### E2. Hyperparameter chosen on noise, at the edge of the grid
 
 * **AI output (v1 of the baseline in notebook 02):** grid search on `C` in {0.001, ..., 10} and keep
   `gs.best_params_`, which gave `C = 10`.
-* **Problem:** `C = 10` was the last value of the grid, so we did not know if a larger value would be better,
-  and the CV PR-AUC was flat (0.4464 at `C = 0.01`, 0.4501 at `C = 10`) while the standard deviation between
-  folds is about 0.013. Taking the maximum was choosing on noise, and choosing the weakest regularisation,
-  although `euribor3m`, `emp.var.rate` and `nr.employed` are collinear (VIF > 30).
-* **Fix (v2):** grid extended to `C = 100` (score 0.4500, so the plateau is confirmed) and the
-  **one standard error rule**: among the settings within one standard error (std / sqrt(5)) of the best score,
-  keep the most regularised one. Result: `C = 0.01`, `class_weight=None`.
-* **Result:** CV PR-AUC 0.4464 instead of 0.4501 (a difference 3 times smaller than the fold std), a simpler
-  and more stable model, and coefficients of more reasonable size (the economic coefficient went from
-  -2.36 to -0.43).
+* **Problem:** `C = 10` was the last value of the grid, so we did not know if a larger value would be better.
+  When we extended the grid to `C = 100` (and moved to the shared split of `code/step2_split.py`), the "best"
+  value became `C = 100`, again the edge: the CV PR-AUC is flat (0.4484 at `C = 0.1`, 0.4497 at `C = 100`)
+  while the standard deviation between folds is about 0.006. Taking the maximum was choosing on noise, and
+  choosing the weakest regularisation, although `euribor3m`, `emp.var.rate` and `nr.employed` are collinear
+  (VIF > 30).
+* **Fix (v2):** **one standard error rule**: among the settings within one standard error (std / sqrt(5)) of the
+  best score, keep the most regularised one. Result: `C = 0.1`, `class_weight=None` (notebook 02, section 3).
+* **Result:** CV PR-AUC 0.4484 instead of 0.4497 (a difference smaller than the fold std), a simpler and more
+  stable model, chosen by a rule decided before looking at the test set.

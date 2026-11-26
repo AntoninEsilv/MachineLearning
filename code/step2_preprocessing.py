@@ -7,7 +7,7 @@ Pipeline scikit-learn, donc ajusté (fit) uniquement sur les données
 d'entraînement de chaque fold de validation croisée -> pas de fuite de données.
 
 Usage :
-    from preprocessing import load_split, build_preprocessor
+    from step2_preprocessing import load_split, build_preprocessor
     X_train, y_train, X_test, y_test = load_split()
     model = Pipeline([("prep", build_preprocessor()), ("clf", LogisticRegression(...))])
 """
@@ -44,7 +44,9 @@ def build_preprocessor() -> ColumnTransformer:
     standardisation des numériques, binaire laissé tel quel."""
     return ColumnTransformer(
         transformers=[
-            ("cat", OneHotEncoder(handle_unknown="ignore"), CATEGORICAL),
+            # modalités rares (< 20 lignes, ex. default=yes : 3 lignes) regroupées, comme annoncé dans le notebook 01
+            ("cat", OneHotEncoder(handle_unknown="infrequent_if_exist", min_frequency=20,
+                                  sparse_output=False), CATEGORICAL),
             ("num", StandardScaler(), NUMERIC),
             ("bin", "passthrough", BINARY),
         ],

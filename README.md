@@ -10,6 +10,8 @@ Business goal: reach at least 60 % of the subscribers by calling 20 % of the cli
 ```
 dataset/raw/                 original data (UCI, CC BY 4.0)
 dataset/processed/           bank_clean.csv, made by notebook 01
+dataset/train.csv, test.csv  stratified 80/20 split, made by code/step2_split.py
+code/                        step2_split.py, step2_preprocessing.py (split and preprocessor)
 notebooks/
   01_data_exploration.ipynb  quality, statistical tests, cleaning           (step 2.1)
   02_baseline_automl.ipynb   split plan, dummy, logistic regression baseline,
@@ -17,7 +19,7 @@ notebooks/
   03_advanced_models.ipynb   random forest, boosting, ensemble, model outside the course (step 3, to do)
   04_model_comparison.ipynb  test set, confidence intervals, comparison with the baseline, temporal test (step 3)
 src/
-  common.py                  features, split, preprocessing (shared by all notebooks)
+  common.py                  loads the split, CV folds, temporal split (uses code/step2_preprocessing.py)
   evaluation.py              metrics, recall in the top 20 %, bootstrap
   models.py                  registry of the final models compared in notebook 04
 results/                     csv tables and tuned hyperparameters (best_params_*.json)
@@ -29,6 +31,7 @@ rendus/                      deliverables already sent (step 1)
 ## Reproduce
 ```
 pip install -r requirements.txt
+python code/step2_split.py      # only if dataset/train.csv and test.csv are missing
 cd notebooks
 jupyter nbconvert --to notebook --execute --inplace 01_data_exploration.ipynb
 jupyter nbconvert --to notebook --execute --inplace 02_baseline_automl.ipynb
@@ -46,7 +49,7 @@ All paths are relative, all seeds are 42.
 | Model | PR-AUC [95 % CI] | ROC-AUC | Subscribers reached with 20 % of calls |
 |---|---|---|---|
 | Dummy | 0.113 | 0.500 | 20.0 % |
-| Logistic regression (baseline) | 0.451 [0.417, 0.487] | 0.798 | 64.4 % |
-| Best AutoML v0.1 model (decision tree) | 0.469 [0.436, 0.504] | 0.805 | 65.2 % |
+| Logistic regression (baseline) | 0.454 [0.418, 0.488] | 0.800 | 64.0 % |
+| Best AutoML v0.1 model on test (decision tree) | 0.472 [0.434, 0.503] | 0.805 | 64.0 % |
 
 The gain of the tree is not reliable (lower than the baseline in cross-validation, collapses on the temporal split).
