@@ -1,0 +1,10 @@
+{
+  "model__alpha": 0.010129197956845729,
+  "model__batch_size": 512,
+  "model__hidden_layer_sizes": [
+    128,
+    64
+  ],
+  "model__learning_rate_init": 0.00012966511753760416,
+  "model__max_iter": 80
+}

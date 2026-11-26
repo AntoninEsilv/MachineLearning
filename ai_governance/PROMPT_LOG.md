@@ -106,3 +106,26 @@
   set, where the random forest is slightly ahead without a significant difference; every number in the comments
   was compared with the tables of the notebook.
 
+### P5. Step 3 part 2: ensemble and model outside the course
+* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, after P4.
+* **Prompt (exact, French):** "fais ce qu'il reste à faire pour que la step 3 sois entierement fini."
+  Context given just before in the same session: the 8 points of step 3 in `tasks/Project-Guidelines-ML-2026.pdf`
+  (slide 18); points 5-8 (ensemble, algorithm outside the course, scientific reference, comparison with the
+  baseline) were the ones still missing.
+* **Weakness of the prompt:** it names no model, no metric and no leakage rule. The AI took them from the repo
+  (same folds, PR-AUC, preprocessing inside the pipeline, test set only in notebook 04), so we checked these points
+  ourselves (below).
+* **What the AI did:** read the course syllabus (`Lesson1-ML_Course_Introduction.pdf`: neural networks are not in
+  the 8 sessions, so an MLP is outside the course); wrote notebook 06 (limitations of v0.1/v0.2, stacking and soft
+  voting, MLP tuned with a random search); added `stacking`, `soft_voting` and `mlp` to `src/models.py`; re-ran
+  notebook 04 and rewrote its comments; checked that the 4 references exist (NeurIPS proceedings, arXiv, journal
+  pages) before citing them.
+* **Checks done on the output:**
+  * the stacking uses `cv=cv_folds()`, so its meta-model learns on out-of-fold scores (same idea as the OOF
+    threshold); the base models keep their own preprocessor inside their pipeline;
+  * `early_stopping` of `MLPClassifier` is disabled: we read the scikit-learn source, it monitors the *accuracy*
+    of a validation split, which is almost flat with 11 % of yes; the number of epochs is tuned in CV instead;
+  * the ensemble sent to notebook 04 (stacking) is chosen on CV PR-AUC, not on the test set;
+  * the MLP hypothesis written before the run ("its smooth function may extrapolate better than trees on the
+    temporal split") turned out wrong (ROC-AUC 0.59): it is reported as such, not removed.
+
