@@ -36,6 +36,7 @@ python code/step2_split.py      # only if dataset/train.csv and test.csv are mis
 cd notebooks
 jupyter nbconvert --to notebook --execute --inplace 01_data_exploration.ipynb
 jupyter nbconvert --to notebook --execute --inplace 02_baseline_automl.ipynb
+jupyter nbconvert --to notebook --execute --inplace 03_advanced_models.ipynb
 jupyter nbconvert --to notebook --execute --inplace 05_feature_selection.ipynb
 jupyter nbconvert --to notebook --execute --inplace 04_model_comparison.ipynb
 ```
@@ -48,10 +49,19 @@ All paths are relative, all seeds are 42.
 4. Re-run notebook 04: the model is evaluated on the test set and on the temporal split automatically.
 
 ## Results so far (test set, 8,236 calls)
-| Model | PR-AUC [95 % CI] | ROC-AUC | Subscribers reached with 20 % of calls |
-|---|---|---|---|
-| Dummy | 0.113 | 0.500 | 20.0 % |
-| Logistic regression (baseline) | 0.454 [0.418, 0.488] | 0.800 | 64.0 % |
-| Best AutoML v0.1 model on test (decision tree) | 0.472 [0.434, 0.503] | 0.805 | 64.0 % |
+| Model | PR-AUC [95 % CI] | ROC-AUC | Subscribers reached with 20 % of calls | Temporal split ROC-AUC |
+|---|---|---|---|---|
+| Dummy | 0.113 | 0.500 | 20.0 % | 0.500 |
+| Logistic regression (baseline) | 0.454 [0.418, 0.488] | 0.800 | 64.0 % | 0.748 |
+| Best AutoML v0.1 model on test (decision tree) | 0.472 [0.434, 0.503] | 0.805 | 64.0 % | 0.542 |
+| Random forest (step 3) | 0.498 [0.461, 0.530] | 0.817 | 67.1 % | 0.679 |
+| LightGBM (step 3) | 0.490 [0.453, 0.523] | 0.814 | 66.6 % | 0.676 |
 
-The gain of the tree is not reliable (lower than the baseline in cross-validation, collapses on the temporal split).
+* Random forest and LightGBM beat the baseline in a reliable way (paired bootstrap: PR-AUC +0.043 and +0.036,
+  recall at 20 % +2.8 and +2.5 points, CIs above 0), in the same direction as cross-validation. They cannot be
+  separated from each other (+0.007 [-0.003, +0.017]).
+* The gain of the decision tree is not reliable (lower than the baseline in cross-validation, collapses on the
+  temporal split).
+* Temporal split (train on the oldest 80 %, test on the most recent 20 %): all the tree-based models fall below
+  the logistic regression, because `euribor3m` is out of the training range for 99 % of the recent calls.
+  Details in `notebooks/04_model_comparison.ipynb`.
