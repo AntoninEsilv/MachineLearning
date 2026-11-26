@@ -25,20 +25,27 @@
 
 ## Enki Millet (module 4)
 
-### P1. Baseline, AutoML v0.1 and evaluation protocol
+### P1. Bare prompts for the implementation (baseline, protocol, step 3 models)
 * **Tool:** Claude Code (Claude Opus 5.5), working directly in the repository, 26/11/2026.
-* **Prompt 1 (bare, French, exact):** "regarde ce que je dois faire, en sachant qu'on doit avoir fini le step 3 et
-  qu'on doit preparer un oral. [...] les steps que je dois faire"
-  → The AI read the guidelines and the repo and listed the missing work; it pointed out that the notebook 01
-  path (`data/` instead of `dataset/`) was broken and that `row_order` must not be used as a feature.
-* **Prompt 2 (exact):** "Fais tout ce que tu peux faire que je dois faire en m'expliquant ce que tu as fait [...]
-  Assure toi que la step 1 et step 2.1 sont carrés."
+* **Prompts (bare, French, exact):**
+  1. "regarde ce que je dois faire, en sachant qu'on doit avoir fini le step 3 et qu'on doit preparer un oral.
+     [...] les steps que je dois faire" → the AI read the guidelines and the repo and listed the missing work; it
+     pointed out that the notebook 01 path (`data/` instead of `dataset/`) was broken and that `row_order` must not
+     be used as a feature.
+  2. "Fais tout ce que tu peux faire que je dois faire en m'expliquant ce que tu as fait [...] Assure toi que la
+     step 1 et step 2.1 sont carrés."
+  3. Later, for step 3 (re-run of notebook 04 with the new models, then notebook 06: stacking and MLP): "fais ce
+     qu'il reste à faire pour que la step 3 sois entierement fini."
 * **Weakness of these prompts:** they do not state the schema, the metric or the leakage rules; the AI had to take
-  them from the step 1 document and the guidelines. This is the "bare prompt" case of the brief, so we checked
-  every point by hand afterwards (see `AI_AUDIT.md` E1 and E2).
+  them from the step 1 document, the guidelines and the repo. This is the "bare prompt" case of the brief, so we
+  checked every point by hand afterwards (see `AI_AUDIT.md` E1 and E2, and P2-P3 for the constrained versions).
 * **Checks done on the output:** encoder and scaler inside the `Pipeline` (fitted on training folds only),
   `duration` and `row_order` absent from the features (assert / print in notebook 02), same test rows in 02 and
   04 (`results/test_rows.csv` + assert), threshold chosen on out-of-fold train scores, test set used once.
+  For step 3: the meta-model of the stacking learns on out-of-fold scores (`cv=cv_folds()`); `early_stopping` of
+  the MLP disabled because scikit-learn monitors the accuracy (almost flat with 11 % of yes); every model kept is
+  chosen on CV, never on the test set; the 4 references checked to exist; the whole project re-run from a clean
+  clone with the same results.
 
 ### P2. Leakage audit of the pipeline (constrained prompt)
 * **Tool:** Claude Code, 26/11/2026. Compared to P1, the prompt gives the data schema, the leakage boundaries
@@ -87,35 +94,3 @@
      updated). Threshold metrics (precision, F1) are not reported on the temporal split, since a threshold chosen
      with 11 % of yes is meaningless with 31 %.
 * **Kept:** the ddof fix in notebook 02, one sentence added in notebook 04.
-
-### P4. Step 3: final comparison, ensemble and model outside the course
-* **Tool:** Claude Code (Claude Opus 5.5), 26/11/2026, one session after part 1 of step 3 (random forest and
-  LightGBM, notebook 03) and the feature selection (notebook 05) were pushed.
-* **Prompts (exact, French):**
-  1. "lis prepa_oral_ml.md et update https://github.com/AntoninEsilv/MachineLearning avec ce que je peux faire
-     maitenant que la partie 3 est faite, il faut qu'on ait fini ce qu'il me restait à faire dans le step 3"
-     (`prepa_oral_ml.md` is my revision file; its "still to do" list: re-run notebook 04 with the step 3 models,
-     update its conclusion and the README table).
-  2. "fais ce qu'il reste à faire pour que la step 3 sois entierement fini." (just before, the AI had listed the
-     8 points of step 3 from `tasks/Project-Guidelines-ML-2026.pdf`, slide 18; points 5-8 were missing).
-* **Weakness of these prompts:** bare prompts again: no model, no metric, no leakage rule. The AI took them from
-  the repo (same folds, PR-AUC, preprocessing inside the pipeline, test set only in notebook 04), so we checked
-  these points ourselves (below).
-* **What the AI did:** re-ran notebook 04 with every step 3 model and rewrote its comments; added the check of the
-  OOF threshold against the in-sample threshold and the paired bootstrap random forest vs LightGBM; added
-  `lightgbm` to `requirements.txt` (the reproduction failed without it); read the course syllabus
-  (`Lesson1-ML_Course_Introduction.pdf`: neural networks are not in the 8 sessions); wrote notebook 06
-  (limitations of v0.1/v0.2, stacking vs soft voting, MLP tuned with a random search) and the `stacking`,
-  `soft_voting` and `mlp` builders of `src/models.py`; checked that the 4 references exist (NeurIPS proceedings,
-  arXiv, journal pages) before citing them.
-* **Checks done on the output:**
-  * the scores of the v0.1 models did not change (differences below 0.0001, floating point between two computers);
-  * the stacking uses `cv=cv_folds()`, so its meta-model learns on out-of-fold scores (same idea as the OOF
-    threshold); the base models keep their own preprocessor inside their pipeline;
-  * `early_stopping` of `MLPClassifier` is disabled: we read the scikit-learn source, it monitors the *accuracy*
-    of a validation split, which is almost flat with 11 % of yes; the number of epochs is tuned in CV instead;
-  * every model kept (LightGBM among the v0.2 models, stacking among the ensembles) is chosen on CV, never on the
-    test set;
-  * the MLP hypothesis written before the run ("its smooth function may extrapolate better than trees on the
-    temporal split") turned out wrong (ROC-AUC 0.59): it is reported as such, not removed;
-  * the whole project was re-run from a clean clone in the order of the README.
