@@ -30,7 +30,19 @@ how we found it, the fix, and where the fixed version is.
 
 ## Antonin Charron (module 3)
 
-*To write.*
+### A1. MLP early stopping based on accuracy instead of PR-AUC
+
+* **AI output (first version of the MLP):** `MLPClassifier(early_stopping=True, random_state=42)` to avoid
+  overfitting during training.
+* **Problem:** in scikit-learn, `early_stopping=True` keeps the epoch with the best **accuracy** on an internal
+  validation split. Because our dataset has only 11.3 % of `yes`, predicting `no` for everyone already gives
+  88.7 % accuracy, so the accuracy stays flat and the network stops at a random epoch.
+* **How we caught it:** by checking why the MLP score was unstable and reading the scikit-learn documentation of
+  `MLPClassifier`.
+* **Fix:** set `early_stopping=False` in `src/models.py` and tune the number of epochs (`max_iter` from 10 to 150)
+  and the L2 penalty (`alpha`) directly in 5-fold cross-validation using PR-AUC (`notebooks/06_ensemble_and_mlp.ipynb`).
+* **Result:** the tuned MLP (`max_iter = 80`, `alpha = 0.01`, layers `[128, 64]`) reaches a CV PR-AUC of 0.453
+  instead of 0.368 with the default settings, and reduces the train-CV gap from 0.37 to 0.08.
 
 ---
 

@@ -29,7 +29,19 @@
 
 ## Antonin Charron (module 3)
 
-*To write.*
+### A1. Prompt for the ensemble (v0.3) and the MLP (v0.4)
+* **Prompt (exact):**
+  > Using our existing pipeline (`make_preprocessor()`, 5-fold stratified CV `cv_folds()`, metric PR-AUC),
+  > write Python code to compare a Soft Voting and a Stacking ensemble combining our tuned logistic regression,
+  > random forest and LightGBM, and train a tuned MLPClassifier as a model outside the course.
+* **Constraints given:** We gave the base models to combine, the preprocessing pipeline, the 5-fold cross-validation
+  and the main metric (PR-AUC on `train.csv` only).
+* **What came back:** code for `VotingClassifier(voting="soft")`, `StackingClassifier` with a logistic regression
+  meta-model, and a `RandomizedSearchCV` for `MLPClassifier`.
+* **What we did not keep:** `StackingClassifier` with default `cv=5` instead of our shared `cv_folds()`, and
+  `early_stopping=True` on the `MLPClassifier` (which monitors accuracy instead of PR-AUC).
+* **Lesson:** even when we give the metric in the prompt, the AI uses default scikit-learn options
+  (`cv=5`, `early_stopping=True`) that do not match an imbalanced dataset (11 % of yes).
 
 ---
 
