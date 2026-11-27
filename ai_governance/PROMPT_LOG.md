@@ -8,6 +8,7 @@
 ## Baudouin Parent (module 1)
 
 ### B1. Bare prompt for step 3 models, used as a control
+* **Tool:** Gemini.
 * **Prompt (bare, exact):**
   > I have a bank marketing dataset (bank-cleaned.csv,Schema: 41,176 rows, target y = yes/no, 11 % of yes).
   > Write Python code to train a random forest and a LightGBM model, tune them, prevent leakage.
@@ -58,6 +59,7 @@
 ## Antonin Charron (module 3)
 
 ### A1. Prompt for the ensemble (v0.3) and the MLP (v0.4)
+* **Tool:** Claude.
 * **Prompt (exact):**
   > Using our existing pipeline (`make_preprocessor()`, 5-fold stratified CV `cv_folds()`, metric PR-AUC),
   > write Python code to compare a Soft Voting and a Stacking ensemble combining our tuned logistic regression,

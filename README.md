@@ -26,6 +26,7 @@ src/
   evaluation.py              metrics, recall in the top 20 %, bootstrap
   models.py                  registry of the final models compared in notebook 04
 results/                     csv tables and tuned hyperparameters (best_params_*.json)
+report/                      Report_Group_XX.pdf (final report) and its LaTeX source
 report/figures/              figures for the report
 ai_governance/               CONTRIBUTIONS.md, PROMPT_LOG.md, AI_AUDIT.md
 rendus/                      deliverables already sent (step 1)
