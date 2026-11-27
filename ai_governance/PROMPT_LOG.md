@@ -23,7 +23,35 @@
 
 ## Vivien Perrault (module 2)
 
-*To write.*
+V1. Feature-selection implementation
+Tool: GitHub Copilot coding agent, working directly in the repository.
+Prompt (initial, exact):
+  > "Can you help me implement test feature selection?"
+Constraints given: this initial prompt was broad; it did not explicitly specify the data split, the leakage
+  boundaries, the metric, or the cross-validation protocol. The leakage constraint, preprocessing and
+  selection pipeline, five-fold stratified CV, and PR-AUC protocol were derived from the project and notebook
+  conventions rather than stated in this prompt.
+What came back: a feature-selection implementation comparing all features, mutual information at 50 %
+  and 75 %, and L1 median and stricter thresholds. Preprocessing and selection were placed inside the same
+  Pipeline, evaluated with the project's five-fold stratified CV and PR-AUC. L1 median was the CV winner
+  (about 0.4489 PR-AUC, versus 0.4484 for all features).
+What we kept or changed: kept the CV comparison and the in-pipeline preprocessing/selection. Rejected the
+  first script design that evaluated every candidate on the held-out test set, because that reused test data to
+  assess model-selection alternatives. The fixed version in notebooks/05_feature_selection.ipynb uses test
+  data once for the CV-selected method and the all-feature baseline only.
+Lesson: a broad implementation prompt is not sufficient to encode a valid evaluation protocol; the
+  repository conventions must be explicit or reviewed by hand. Test-set results must not be used to choose the
+  final method.
+
+V2. Notebook conversion
+Prompt (follow-up, exact):
+  > "Plutôt faire un notebook à la place du code step3_features_selection"
+Constraints given: replace the script-based implementation with a notebook and keep the existing project
+  convention for module 2.
+What came back: notebooks/05_feature_selection.ipynb, retaining the CV protocol and correcting the
+  test-set comparison to include only the CV-selected L1 median method and the all-feature baseline.
+Lesson: changing the output format is also an opportunity to correct the evaluation design; the notebook
+  documents the CV-selection rule and clearly reserves test data for one final comparison.
 
 ---
 

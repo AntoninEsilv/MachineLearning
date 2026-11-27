@@ -24,7 +24,21 @@ how we found it, the fix, and where the fixed version is.
 
 ## Vivien Perrault (module 2)
 
-*To write.*
+### V1. Test-set reuse in feature-selection comparison
+* **AI output (first script version):** code comparing all-feature, mutual-information and L1 feature-selection
+  candidates on cross-validation, but also evaluating every candidate on the held-out test set.
+* **Problem:** the test set was effectively reused for model-selection evidence: because several methods were
+  measured on test rows, test performance could influence which method was selected. This is test-set reuse
+  and a model-selection risk, even though preprocessing and feature selection were inside the cross-validation
+  pipelines.
+* **How we caught it:** reviewing the implementation against the project protocol, especially the rule that the
+  test set is held out and that the CV-selected method must be chosen before test evaluation.
+* **Fix:** after the notebook conversion, the cross-validation comparison selects L1 median by mean PR-AUC
+  (about 0.4489 versus 0.4484 for all features). The held-out test set is now evaluated once for only
+  L1 median and the all-feature baseline in `notebooks/05_feature_selection.ipynb`.
+* **Result:** the test PR-AUC difference was tiny (about 0.0013) and the paired bootstrap 95 % CI included zero
+  ([-0.000424, 0.002912]), so the test data do not show a clear improvement. Test results were not used to
+  choose the winning CV method.
 
 ---
 
