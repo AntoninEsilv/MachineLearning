@@ -7,50 +7,50 @@
 
 ## Baudouin Parent (module 1)
 
-### [Initial]1. Bare prompt for step 3 models, used as a control
+### B1. Bare prompt for step 3 models, used as a control
 * **Prompt (bare, exact):**
   > I have a bank marketing dataset (bank-cleaned.csv,Schema: 41,176 rows, target y = yes/no, 11 % of yes).
   > Write Python code to train a random forest and a LightGBM model, tune them, prevent leakage.
-* **Constraints given:** We gave it the necessary information about the dataset as well as an explicit instruction to prevent data leakage,
-   The general pipeline and the models to train.
+* **Constraints given:** the dataset schema, an explicit instruction to prevent data leakage, the general pipeline
+  and the models to train.
 * **What came back:** a complete script with a stratified 80/20 split, preprocessing inside a Pipeline,
-  `RandomizedSearchCV` with `scoring="average_precision"`. There were no issues of data leakage (since we had already removed `duration`)
+  `RandomizedSearchCV` with `scoring="average_precision"`. There was no data leakage (we had already removed `duration`).
 * **What we did not keep:** class weights combined with a fixed 0.5 threshold applied on the test set,
- `pdays = 999` scaled as a number, duplicates kept, no baseline and no confidence interval.
+  `pdays = 999` scaled as a number, duplicates kept, no baseline and no confidence interval.
 * **Lesson:** without an explicit protocol in the prompt, the AI follows generic good practice but misses
   the decisions specific to our data (sentinel values, threshold chosen out-of-fold, comparison with the
-  baseline). These must be written into the prompt as constraints, as in Enki's P2-P3.
+  baseline). These must be written into the prompt as constraints, as in Enki's P2.
 
 ## Vivien Perrault (module 2)
 
-V1. Feature-selection implementation
-Tool: GitHub Copilot coding agent, working directly in the repository.
-Prompt (initial, exact):
+### V1. Feature-selection implementation
+* **Tool:** GitHub Copilot coding agent, working directly in the repository.
+* **Prompt (initial, exact):**
   > "Can you help me implement test feature selection?"
-Constraints given: this initial prompt was broad; it did not explicitly specify the data split, the leakage
+* **Constraints given:** this initial prompt was broad; it did not explicitly specify the data split, the leakage
   boundaries, the metric, or the cross-validation protocol. The leakage constraint, preprocessing and
   selection pipeline, five-fold stratified CV, and PR-AUC protocol were derived from the project and notebook
   conventions rather than stated in this prompt.
-What came back: a feature-selection implementation comparing all features, mutual information at 50 %
+* **What came back:** a feature-selection implementation comparing all features, mutual information at 50 %
   and 75 %, and L1 median and stricter thresholds. Preprocessing and selection were placed inside the same
   Pipeline, evaluated with the project's five-fold stratified CV and PR-AUC. L1 median was the CV winner
   (about 0.4489 PR-AUC, versus 0.4484 for all features).
-What we kept or changed: kept the CV comparison and the in-pipeline preprocessing/selection. Rejected the
+* **What we kept or changed:** kept the CV comparison and the in-pipeline preprocessing/selection. Rejected the
   first script design that evaluated every candidate on the held-out test set, because that reused test data to
   assess model-selection alternatives. The fixed version in notebooks/05_feature_selection.ipynb uses test
   data once for the CV-selected method and the all-feature baseline only.
-Lesson: a broad implementation prompt is not sufficient to encode a valid evaluation protocol; the
+* **Lesson:** a broad implementation prompt is not sufficient to encode a valid evaluation protocol; the
   repository conventions must be explicit or reviewed by hand. Test-set results must not be used to choose the
   final method.
 
-V2. Notebook conversion
-Prompt (follow-up, exact):
+### V2. Notebook conversion
+* **Prompt (follow-up, exact):**
   > "Plutôt faire un notebook à la place du code step3_features_selection"
-Constraints given: replace the script-based implementation with a notebook and keep the existing project
+* **Constraints given:** replace the script-based implementation with a notebook and keep the existing project
   convention for module 2.
-What came back: notebooks/05_feature_selection.ipynb, retaining the CV protocol and correcting the
+* **What came back:** notebooks/05_feature_selection.ipynb, retaining the CV protocol and correcting the
   test-set comparison to include only the CV-selected L1 median method and the all-feature baseline.
-Lesson: changing the output format is also an opportunity to correct the evaluation design; the notebook
+* **Lesson:** changing the output format is also an opportunity to correct the evaluation design; the notebook
   documents the CV-selection rule and clearly reserves test data for one final comparison.
 
 ---
@@ -88,7 +88,7 @@ Lesson: changing the output format is also an opportunity to correct the evaluat
      qu'il reste à faire pour que la step 3 sois entierement fini."
 * **Weakness of these prompts:** they do not state the schema, the metric or the leakage rules; the AI had to take
   them from the step 1 document, the guidelines and the repo. This is the "bare prompt" case of the brief, so we
-  checked every point by hand afterwards (see `AI_AUDIT.md` E1 and E2, and P2-P3 for the constrained versions).
+  checked every point by hand afterwards (see `AI_AUDIT.md` E1 and E2, and P2 for the constrained versions).
 * **Checks done on the output:** encoder and scaler inside the `Pipeline` (fitted on training folds only),
   `duration` and `row_order` absent from the features (assert / print in notebook 02), same test rows in 02 and
   04 (`results/test_rows.csv` + assert), threshold chosen on out-of-fold train scores, test set used once.
@@ -97,17 +97,17 @@ Lesson: changing the output format is also an opportunity to correct the evaluat
   chosen on CV, never on the test set; the 4 references checked to exist; the whole project re-run from a clean
   clone with the same results.
 
-### P2. Leakage audit of the pipeline (constrained prompt)
-* **Tool:** Claude Code, 26/11/2026. Compared to P1, the prompt gives the data schema, the leakage boundaries
-  and asks for a proof per point.
-* **Prompt (exact):**
+### P2. Constrained audit prompts: data leakage, then statistical choices
+* **Tool:** Claude Code, 26/11/2026, two prompts in a row. Compared to P1, they give the data schema, the leakage
+  boundaries, the assumptions to check and a fallback, and ask for a proof per point.
+* **Prompt 1, leakage (exact):**
   > Audit `notebooks/02_baseline_automl.ipynb` and `src/` for data leakage. Schema: 41,176 rows, target `y` (0/1,
   > 11.3 % positives), features = `FEATURES` in `code/step2_preprocessing.py`; `duration` and `row_order` must NOT
   > be features. Check: (1) OneHotEncoder and StandardScaler are fitted only on training folds (inside the
   > Pipeline); (2) the test set (`dataset/test.csv`) is never used in 02 for tuning or threshold choice; (3) the
   > threshold in 04 is chosen on out-of-fold train scores only; (4) the deduplication before the split cannot leak.
   > For each point answer PASS/FAIL with the line of code as proof. Do not change code without telling me why.
-* **Answer (summary):**
+* **Answer to prompt 1 (summary):**
   1. PASS: every model in `src/models.py` is `Pipeline([("prep", ...), ("model", ...)])`, and all the CV calls
      (`GridSearchCV`, `RandomizedSearchCV`, `cross_validate`, `cross_val_predict`, `learning_curve`) receive the
      whole pipeline. `common.py` asserts that `row_order` and `duration` are not in `FEATURES`.
@@ -121,18 +121,15 @@ Lesson: changing the output format is also an opportunity to correct the evaluat
      0.455), so the twins do not help the models; they are typical clients never contacted before (9.7 % of yes).
   * Extra risk found: `emp.var.rate` and `nr.employed` are quarterly indicators, maybe published after the call
     (look-ahead). Not fixable with this data; added to the risks in notebook 02.
-* **Kept:** no code change for points 1-4; the risk was added to notebook 02, section 6.
 
-### P3. Statistical choices of the evaluation (constrained prompt)
-* **Tool:** Claude Code, 26/11/2026, same conditions as P2.
-* **Prompt (exact):**
+* **Prompt 2, statistical choices (exact):**
   > Check the statistical choices of notebook 04. Main metric is PR-AUC because of the 11 % imbalance; do not use
   > accuracy. Verify: (1) the bootstrap CI resamples test rows with replacement and the paired bootstrap uses the
   > same indices for both models; (2) the one-standard-error rule in notebook 02 uses std/sqrt(5) correctly;
   > (3) PR-AUC values on the temporal split are not compared directly to the random split (different prevalence:
   > 0.308 vs 0.113). If an assumption is violated, propose a fallback (e.g. a ranking metric instead of a
   > thresholded one). Answer point by point with numbers from the outputs.
-* **Answer (summary):**
+* **Answer to prompt 2 (summary):**
   1. PASS: `rng.integers(0, n, n)` = resampling with replacement; `paired_bootstrap_diff` uses the same `idx` for
      both models. Limit: the CI only covers the randomness of the test sample, not of the training (the model is
      fitted once).
@@ -143,4 +140,5 @@ Lesson: changing the output format is also an opportunity to correct the evaluat
      it. This ratio is only a rough correction, so the ROC-AUC is the fallback metric for this comparison (text
      updated). Threshold metrics (precision, F1) are not reported on the temporal split, since a threshold chosen
      with 11 % of yes is meaningless with 31 %.
-* **Kept:** the ddof fix in notebook 02, one sentence added in notebook 04.
+* **Kept:** no code change for the leakage points 1-4 (the look-ahead risk was added to notebook 02, section 6);
+  the ddof fix in notebook 02 and one sentence in notebook 04 after prompt 2.

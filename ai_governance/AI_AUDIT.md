@@ -36,7 +36,7 @@ how we found it, the fix, and where the fixed version is.
 * **Fix:** after the notebook conversion, the cross-validation comparison selects L1 median by mean PR-AUC
   (about 0.4489 versus 0.4484 for all features). The held-out test set is now evaluated once for only
   L1 median and the all-feature baseline in `notebooks/05_feature_selection.ipynb`.
-* **Result:** the test PR-AUC difference was tiny (about 0.0013) and the paired bootstrap 95 % CI included zero
+* **Result:** the test PR-AUC difference was tiny (about 0.0012) and the paired bootstrap 95 % CI included zero
   ([-0.000424, 0.002912]), so the test data do not show a clear improvement. Test results were not used to
   choose the winning CV method.
 
@@ -101,7 +101,7 @@ how we found it, the fix, and where the fixed version is.
 * **Problem:** scikit-learn computes `std_test_*` with `np.std`, i.e. `ddof=0`. A standard error of the mean needs
   the sample standard deviation (`ddof=1`). With 5 folds the SE was too small by a factor sqrt(4/5) (-11 %),
   so the rule was slightly too strict.
-* **How we caught it:** constrained audit prompt P3; checked by recomputing the 5 fold scores of `C = 0.1`:
+* **How we caught it:** constrained audit prompt P2 (second prompt); checked by recomputing the 5 fold scores of `C = 0.1`:
   `std_test_score` = 0.00558 = `np.std(ddof=0)`, while `np.std(ddof=1)` = 0.00624.
 * **Fix (v3):** `std_sample = std * sqrt(k / (k - 1))`, then `se = std_sample / sqrt(k)`.
 * **Result:** the threshold goes from 0.4471 to 0.4468; the chosen model does not change (`C = 0.1`).
