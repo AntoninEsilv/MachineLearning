@@ -1,6 +1,6 @@
 # Prompt log: high-stakes AI interactions
 
-4 to 6 entries in total, at least 1 per member. For each: the tool, the exact prompt, the constraints given
+5 entries in total (4 to 6 required by the brief, 3 to 5 by the guidelines), at least 1 per member. For each: the tool, the exact prompt, the constraints given
 (data schema, leakage boundaries, assumptions to check, metric), what came back and what we kept.
 
 ---
@@ -40,19 +40,16 @@
   first script design that evaluated every candidate on the held-out test set, because that reused test data to
   assess model-selection alternatives. The fixed version in notebooks/05_feature_selection.ipynb uses test
   data once for the CV-selected method and the all-feature baseline only.
+* **Follow-up prompt (exact):**
+  > "Plutôt faire un notebook à la place du code step3_features_selection"
+
+  It produced `notebooks/05_feature_selection.ipynb`, which keeps the CV protocol and compares only the CV-selected
+  L1 median method with the all-feature baseline on the test set.
 * **Lesson:** a broad implementation prompt is not sufficient to encode a valid evaluation protocol; the
   repository conventions must be explicit or reviewed by hand. Test-set results must not be used to choose the
-  final method.
+  final method. Changing the output format (script to notebook) was also the occasion to correct the evaluation
+  design.
 
-### V2. Notebook conversion
-* **Prompt (follow-up, exact):**
-  > "Plutôt faire un notebook à la place du code step3_features_selection"
-* **Constraints given:** replace the script-based implementation with a notebook and keep the existing project
-  convention for module 2.
-* **What came back:** notebooks/05_feature_selection.ipynb, retaining the CV protocol and correcting the
-  test-set comparison to include only the CV-selected L1 median method and the all-feature baseline.
-* **Lesson:** changing the output format is also an opportunity to correct the evaluation design; the notebook
-  documents the CV-selection rule and clearly reserves test data for one final comparison.
 
 ---
 
