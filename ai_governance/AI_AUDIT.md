@@ -7,10 +7,20 @@ how we found it, the fix, and where the fixed version is.
 
 ## Baudouin Parent (module 1)
 
-*To write.* Notebook 01 already refers to an entry about the chi-square condition (expected counts < 5 for
-`default` and `education`, fixed by grouping rare categories and excluding the rest from the test).
+### B1. Chi-square test used without checking its condition
 
----
+* **AI output (first version of notebook 01):** a function running a chi-square test for
+  each categorical variable, with the comment "assumption checked: expected count ≥ 5". The minimum expected
+  count was displayed but never checked.
+* **Problem:** the chi-square test is only valid if every cell has an expected count of at least 5. It was
+  0.34 for `default` (only 3 rows with `yes`) and 2.03 for `education` (18 rows with `illiterate`), so the
+  p-values of these two variables were not reliable.
+* **How we caught it:** by reading the `min_expected` column of the output table.
+* **Fix:** categories with fewer than 20 rows are grouped into `other`, and an `assert` checks the condition.
+  The assert failed: each variable has a single rare category, so `other` was still too small. Final fix: when
+  `other` is still below the condition, its rows are left out of the test (3 and 18 rows out of 41,176).
+* **Result:** the assert passes and the conclusions do not change (`default` p < 0.001, Cramér's V ≈ 0.10;
+  `education` p < 0.001, V ≈ 0.07).
 
 ## Vivien Perrault (module 2)
 

@@ -7,9 +7,19 @@
 
 ## Baudouin Parent (module 1)
 
-*To write.*
-
----
+### [Initial]1. Bare prompt for step 3 models, used as a control
+* **Prompt (bare, exact):**
+  > I have a bank marketing dataset (bank-cleaned.csv,Schema: 41,176 rows, target y = yes/no, 11 % of yes).
+  > Write Python code to train a random forest and a LightGBM model, tune them, prevent leakage.
+* **Constraints given:** We gave it the necessary information about the dataset as well as an explicit instruction to prevent data leakage,
+   The general pipeline and the models to train.
+* **What came back:** a complete script with a stratified 80/20 split, preprocessing inside a Pipeline,
+  `RandomizedSearchCV` with `scoring="average_precision"`. There were no issues of data leakage (since we had already removed `duration`)
+* **What we did not keep:** class weights combined with a fixed 0.5 threshold applied on the test set,
+ `pdays = 999` scaled as a number, duplicates kept, no baseline and no confidence interval.
+* **Lesson:** without an explicit protocol in the prompt, the AI follows generic good practice but misses
+  the decisions specific to our data (sentinel values, threshold chosen out-of-fold, comparison with the
+  baseline). These must be written into the prompt as constraints, as in Enki's P2-P3.
 
 ## Vivien Perrault (module 2)
 
